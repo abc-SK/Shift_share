@@ -384,7 +384,7 @@ function moveWeek(amount) {
 
 function buildSummaryText() {
   const dates = getWeekDates();
-  const lines = [`シフト希望 ${formatDisplayDate(dates[0])} - ${formatDisplayDate(dates[6])}`, ""];
+  const lines = [`うららくしふ ${formatDisplayDate(dates[0])} - ${formatDisplayDate(dates[6])}`, ""];
 
   dates.forEach((date) => {
     const dateText = formatDate(date);
