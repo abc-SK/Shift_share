@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shift Share</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Shift Share</p>
+          <h1>シフト希望カレンダー</h1>
+        </div>
+        <div class="week-controls" aria-label="週の切り替え">
+          <button class="icon-button" id="prevWeek" type="button" aria-label="前の週">&lt;</button>
+          <strong id="weekLabel"></strong>
+          <button class="icon-button" id="nextWeek" type="button" aria-label="次の週">&gt;</button>
+        </div>
+      </header>
+
+      <section class="room-panel" aria-label="共有ルーム">
+        <div>
+          <strong id="roomLabel">共有ルーム</strong>
+          <p id="syncStatus">ローカル保存で動作中</p>
+        </div>
+        <button id="copyRoomUrl" class="secondary" type="button">このURLをコピー</button>
+      </section>
+
+      <section class="setup-panel" aria-label="入力フォーム">
+        <div class="identity-card">
+          <div class="panel-head">
+            <h2>1. 自分を選ぶ</h2>
+            <span id="selectedLabel">未選択</span>
+          </div>
+          <div id="memberChoices" class="choice-list"></div>
+          <label class="inline-label">
+            名前がない場合
+            <span class="inline-form">
+              <input id="memberName" type="text" placeholder="例: 佐藤" maxlength="16" />
+              <button id="addMember" type="button">追加して選択</button>
+            </span>
+          </label>
+        </div>
+
+        <form id="shiftForm" class="shift-form" aria-label="希望時間の追加">
+          <div class="panel-head">
+            <h2>2. 日付と時間帯を入れる</h2>
+            <span id="formHint">名前を選択してください</span>
+          </div>
+          <div class="form-grid">
+            <label>
+              日付（曜日）
+              <select id="shiftDate"></select>
+            </label>
+            <label>
+              開始
+              <input id="startTime" type="time" value="18:00" />
+            </label>
+            <label>
+              終了
+              <input id="endTime" type="time" value="22:00" />
+            </label>
+            <button id="addShift" type="submit">カレンダーに追加</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="actions" aria-label="操作">
+        <button id="copySummary" class="secondary" type="button">共有用まとめをコピー</button>
+      </section>
+
+      <section id="calendar" class="calendar" aria-label="週のカレンダー"></section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
