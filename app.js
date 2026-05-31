@@ -126,7 +126,7 @@ function normalizeState(saved) {
     return {
       weekStart: formatDate(startOfWeek(today)),
       selectedMember: "",
-      members: defaultMembers,
+      members: [...defaultMembers],
       entries: [],
     };
   }
@@ -223,6 +223,9 @@ function renderMemberChoices() {
   }
 
   appState.members.forEach((member) => {
+    const item = document.createElement("div");
+    item.className = "member-item";
+
     const button = document.createElement("button");
     button.className = "member-choice";
     button.type = "button";
@@ -232,7 +235,16 @@ function renderMemberChoices() {
       appState.selectedMember = member;
       render();
     });
-    els.memberChoices.append(button);
+
+    const remove = document.createElement("button");
+    remove.className = "remove-member";
+    remove.type = "button";
+    remove.textContent = "x";
+    remove.setAttribute("aria-label", `${member}を削除`);
+    remove.addEventListener("click", () => removeMember(member));
+
+    item.append(button, remove);
+    els.memberChoices.append(item);
   });
 }
 
@@ -330,6 +342,24 @@ function addMember() {
   els.memberName.value = "";
   render();
   showToast(`${name}を選択しました`);
+}
+
+function removeMember(member) {
+  if (!appState.members.includes(member)) return;
+
+  const entryCount = appState.entries.filter((entry) => entry.member === member).length;
+  const entryMessage = entryCount > 0 ? `\n${entryCount}件のシフトも一緒に削除されます。` : "";
+  const confirmed = window.confirm(`${member}を削除していいですか？${entryMessage}`);
+  if (!confirmed) return;
+
+  appState.members = appState.members.filter((item) => item !== member);
+  appState.entries = appState.entries.filter((entry) => entry.member !== member);
+  if (appState.selectedMember === member) {
+    appState.selectedMember = "";
+  }
+
+  render();
+  showToast(`${member}を削除しました`);
 }
 
 function addShift(event) {

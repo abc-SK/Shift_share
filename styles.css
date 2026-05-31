@@ -202,12 +202,20 @@ h2 {
   padding: 14px 14px 0;
 }
 
+.member-item {
+  display: flex;
+  min-width: 0;
+}
+
 .member-choice {
+  min-width: 0;
   min-height: 34px;
   border: 1px solid var(--line);
+  border-radius: 8px 0 0 8px;
   background: #f8faf8;
   color: var(--muted);
   padding: 0 12px;
+  overflow-wrap: anywhere;
 }
 
 .member-choice:hover {
@@ -219,6 +227,22 @@ h2 {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;
+}
+
+.remove-member {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-left: 0;
+  border-radius: 0 8px 8px 0;
+  background: #fff;
+  color: var(--muted);
+}
+
+.remove-member:hover {
+  background: #fff1f1;
+  color: #b84040;
 }
 
 .inline-label {
@@ -468,10 +492,19 @@ label {
     padding: 12px;
   }
 
-  .member-choice {
+  .member-item {
     flex: 1 1 calc(50% - 7px);
+  }
+
+  .member-choice {
+    flex: 1 1 auto;
     min-height: 44px;
     padding: 0 10px;
+  }
+
+  .remove-member {
+    min-width: 44px;
+    min-height: 44px;
   }
 
   .inline-label {
