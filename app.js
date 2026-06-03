@@ -293,7 +293,7 @@ function renderShiftTypeState(formDisabled = !appState.selectedMember) {
   els.endTimeField.hidden = isOff;
   els.startTime.disabled = formDisabled || isOff;
   els.endTime.disabled = formDisabled || isOff;
-  els.addShift.textContent = isOff ? "休みを追加" : "カレンダーに追加";
+  els.addShift.textContent = "カレンダーに追加";
 }
 
 function renderCalendar() {
