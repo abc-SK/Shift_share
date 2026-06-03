@@ -34,8 +34,12 @@ const els = {
   shiftForm: document.querySelector("#shiftForm"),
   formHint: document.querySelector("#formHint"),
   shiftDate: document.querySelector("#shiftDate"),
+  shiftType: document.querySelector("#shiftType"),
+  startTimeField: document.querySelector("#startTimeField"),
+  endTimeField: document.querySelector("#endTimeField"),
   startTime: document.querySelector("#startTime"),
   endTime: document.querySelector("#endTime"),
+  addShift: document.querySelector("#addShift"),
   copySummary: document.querySelector("#copySummary"),
   calendar: document.querySelector("#calendar"),
   toast: document.querySelector("#toast"),
@@ -138,8 +142,18 @@ function normalizeState(saved) {
     weekStart: formatDate(startOfWeek(savedWeekStart)),
     selectedMember: members.includes(saved.selectedMember) ? saved.selectedMember : "",
     members,
-    entries: Array.isArray(saved.entries) ? saved.entries : [],
+    entries: normalizeEntries(saved.entries),
   };
+}
+
+function normalizeEntries(entries) {
+  if (!Array.isArray(entries)) return [];
+  return entries
+    .filter((entry) => entry && entry.id && entry.member && entry.date)
+    .map((entry) => ({
+      ...entry,
+      type: entry.type === "off" ? "off" : "time",
+    }));
 }
 
 async function saveState() {
@@ -269,7 +283,17 @@ function renderFormState() {
   els.shiftForm.querySelectorAll("select, input, button").forEach((control) => {
     control.disabled = disabled;
   });
+  renderShiftTypeState(disabled);
   els.formHint.textContent = disabled ? "名前を選択してください" : `${appState.selectedMember}として入力中`;
+}
+
+function renderShiftTypeState(formDisabled = !appState.selectedMember) {
+  const isOff = els.shiftType.value === "off";
+  els.startTimeField.hidden = isOff;
+  els.endTimeField.hidden = isOff;
+  els.startTime.disabled = formDisabled || isOff;
+  els.endTime.disabled = formDisabled || isOff;
+  els.addShift.textContent = isOff ? "休みを追加" : "カレンダーに追加";
 }
 
 function renderCalendar() {
@@ -302,7 +326,17 @@ function renderCalendar() {
 function getEntriesForDate(dateText) {
   return appState.entries
     .filter((entry) => entry.date === dateText)
-    .sort((a, b) => `${a.start}-${a.end}-${a.member}`.localeCompare(`${b.start}-${b.end}-${b.member}`));
+    .sort((a, b) => getEntrySortKey(a).localeCompare(getEntrySortKey(b)));
+}
+
+function getEntrySortKey(entry) {
+  if (entry.type === "off") return `1-${entry.member}`;
+  return `0-${entry.start}-${entry.end}-${entry.member}`;
+}
+
+function formatEntryText(entry) {
+  if (entry.type === "off") return `休み ${entry.member}`;
+  return `${entry.start}-${entry.end} ${entry.member}`;
 }
 
 function createEntryRow(entry) {
@@ -310,9 +344,10 @@ function createEntryRow(entry) {
   row.className = "entry-row";
   const canRemove = entry.member === appState.selectedMember;
   row.dataset.readonly = String(!canRemove);
+  row.dataset.type = entry.type;
 
   const text = document.createElement("span");
-  text.textContent = `${entry.start}-${entry.end} ${entry.member}`;
+  text.textContent = formatEntryText(entry);
   row.append(text);
 
   if (!canRemove) return row;
@@ -370,10 +405,29 @@ function addShift(event) {
   }
 
   const date = els.shiftDate.value;
+  const type = els.shiftType.value;
   const start = els.startTime.value;
   const end = els.endTime.value;
 
-  if (!date || !start || !end) {
+  if (!date) {
+    showToast("日付を選択してください");
+    return;
+  }
+
+  if (type === "off") {
+    appState.entries.push({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      member: appState.selectedMember,
+      date,
+      type: "off",
+    });
+
+    render();
+    showToast("休みを追加しました");
+    return;
+  }
+
+  if (!start || !end) {
     showToast("日付と時間帯を入力してください");
     return;
   }
@@ -386,6 +440,7 @@ function addShift(event) {
     id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
     member: appState.selectedMember,
     date,
+    type: "time",
     start,
     end,
   });
@@ -424,7 +479,7 @@ function buildSummaryText() {
       lines.push("  なし");
     } else {
       entries.forEach((entry) => {
-        lines.push(`  ${entry.start}-${entry.end} ${entry.member}`);
+        lines.push(`  ${formatEntryText(entry)}`);
       });
     }
     lines.push("");
@@ -462,6 +517,7 @@ function bindEvents() {
     if (event.key === "Enter") addMember();
   });
   els.shiftForm.addEventListener("submit", addShift);
+  els.shiftType.addEventListener("change", () => renderFormState());
   els.prevWeek.addEventListener("click", () => moveWeek(-1));
   els.nextWeek.addEventListener("click", () => moveWeek(1));
   els.copySummary.addEventListener("click", () => {

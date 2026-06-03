@@ -44,9 +44,9 @@
           </label>
         </div>
 
-        <form id="shiftForm" class="shift-form" aria-label="希望時間の追加">
+        <form id="shiftForm" class="shift-form" aria-label="希望の追加">
           <div class="panel-head">
-            <h2>2. 日付と時間帯を入れる</h2>
+            <h2>2. 日付と希望を入れる</h2>
             <span id="formHint">名前を選択してください</span>
           </div>
           <div class="form-grid">
@@ -55,10 +55,17 @@
               <select id="shiftDate"></select>
             </label>
             <label>
+              希望
+              <select id="shiftType">
+                <option value="time">時間</option>
+                <option value="off">休み</option>
+              </select>
+            </label>
+            <label id="startTimeField">
               開始
               <input id="startTime" type="time" value="18:00" />
             </label>
-            <label>
+            <label id="endTimeField">
               終了
               <input id="endTime" type="time" value="22:00" />
             </label>

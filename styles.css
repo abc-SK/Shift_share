@@ -262,7 +262,7 @@ h2 {
 
 .form-grid {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(120px, 0.55fr) minmax(120px, 0.55fr) auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(110px, 0.45fr) minmax(120px, 0.55fr) minmax(120px, 0.55fr) auto;
   gap: 12px;
   align-items: end;
   padding: 14px;
@@ -324,6 +324,11 @@ label {
 
 .entry-row[data-readonly="true"] {
   grid-template-columns: minmax(0, 1fr);
+}
+
+.entry-row[data-type="off"] {
+  border-color: #e4c27f;
+  background: #fff8e8;
 }
 
 .entry-row span {
