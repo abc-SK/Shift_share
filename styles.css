@@ -266,10 +266,22 @@ h2 {
 
 .form-grid {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(110px, 0.45fr) minmax(120px, 0.55fr) minmax(120px, 0.55fr) auto;
+  grid-template-columns: minmax(180px, 1fr) minmax(110px, 0.45fr) minmax(120px, 0.55fr) minmax(120px, 0.55fr);
   gap: 12px;
   align-items: end;
   padding: 14px;
+}
+
+.memo-field,
+.form-buttons {
+  grid-column: 1 / -1;
+}
+
+.form-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 label {
@@ -335,12 +347,26 @@ label {
   background: #fff8e8;
 }
 
-.entry-row span {
+.entry-content {
+  min-width: 0;
+}
+
+.entry-main {
+  display: block;
   min-width: 0;
   overflow-wrap: anywhere;
   font-size: 0.86rem;
   font-weight: 900;
   line-height: 1.35;
+}
+
+.entry-memo {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .remove-entry {
@@ -529,6 +555,11 @@ label {
     padding: 12px;
   }
 
+  .form-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .actions {
     position: sticky;
     bottom: 0;
@@ -572,7 +603,7 @@ label {
     padding: 10px;
   }
 
-  .entry-row span {
+  .entry-main {
     font-size: 0.92rem;
   }
 

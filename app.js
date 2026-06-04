@@ -39,7 +39,9 @@ const els = {
   endTimeField: document.querySelector("#endTimeField"),
   startTime: document.querySelector("#startTime"),
   endTime: document.querySelector("#endTime"),
+  shiftMemo: document.querySelector("#shiftMemo"),
   addShift: document.querySelector("#addShift"),
+  addWeekOff: document.querySelector("#addWeekOff"),
   copySummary: document.querySelector("#copySummary"),
   calendar: document.querySelector("#calendar"),
   toast: document.querySelector("#toast"),
@@ -153,6 +155,7 @@ function normalizeEntries(entries) {
     .map((entry) => ({
       ...entry,
       type: entry.type === "off" ? "off" : "time",
+      memo: typeof entry.memo === "string" ? entry.memo : "",
     }));
 }
 
@@ -339,6 +342,11 @@ function formatEntryText(entry) {
   return `${entry.start}-${entry.end} ${entry.member}`;
 }
 
+function formatSummaryEntryText(entry) {
+  const memo = entry.memo ? ` / ${entry.memo}` : "";
+  return `${formatEntryText(entry)}${memo}`;
+}
+
 function createEntryRow(entry) {
   const row = document.createElement("div");
   row.className = "entry-row";
@@ -346,9 +354,22 @@ function createEntryRow(entry) {
   row.dataset.readonly = String(!canRemove);
   row.dataset.type = entry.type;
 
+  const content = document.createElement("div");
+  content.className = "entry-content";
+
   const text = document.createElement("span");
+  text.className = "entry-main";
   text.textContent = formatEntryText(entry);
-  row.append(text);
+  content.append(text);
+
+  if (entry.memo) {
+    const memo = document.createElement("p");
+    memo.className = "entry-memo";
+    memo.textContent = entry.memo;
+    content.append(memo);
+  }
+
+  row.append(content);
 
   if (!canRemove) return row;
 
@@ -408,6 +429,7 @@ function addShift(event) {
   const type = els.shiftType.value;
   const start = els.startTime.value;
   const end = els.endTime.value;
+  const memo = els.shiftMemo.value.trim();
 
   if (!date) {
     showToast("日付を選択してください");
@@ -420,8 +442,10 @@ function addShift(event) {
       member: appState.selectedMember,
       date,
       type: "off",
+      memo,
     });
 
+    els.shiftMemo.value = "";
     render();
     showToast("休みを追加しました");
     return;
@@ -443,10 +467,51 @@ function addShift(event) {
     type: "time",
     start,
     end,
+    memo,
   });
 
+  els.shiftMemo.value = "";
   render();
   showToast("カレンダーに追加しました");
+}
+
+function addWeekOff() {
+  if (!appState.selectedMember) {
+    showToast("先に自分の名前を選んでください");
+    return;
+  }
+
+  const weekDates = getWeekDates();
+  const weekDateTexts = new Set(weekDates.map((date) => formatDate(date)));
+  const existingEntries = appState.entries.filter(
+    (entry) => entry.member === appState.selectedMember && weekDateTexts.has(entry.date),
+  );
+
+  if (
+    existingEntries.length > 0 &&
+    !window.confirm(`${appState.selectedMember}の今週の入力${existingEntries.length}件を、1週間休みに置き換えますか？`)
+  ) {
+    return;
+  }
+
+  const memo = els.shiftMemo.value.trim();
+  appState.entries = appState.entries.filter(
+    (entry) => entry.member !== appState.selectedMember || !weekDateTexts.has(entry.date),
+  );
+
+  weekDates.forEach((date) => {
+    appState.entries.push({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      member: appState.selectedMember,
+      date: formatDate(date),
+      type: "off",
+      memo,
+    });
+  });
+
+  els.shiftMemo.value = "";
+  render();
+  showToast("1週間分の休みを追加しました");
 }
 
 function removeEntry(id) {
@@ -479,7 +544,7 @@ function buildSummaryText() {
       lines.push("  なし");
     } else {
       entries.forEach((entry) => {
-        lines.push(`  ${formatEntryText(entry)}`);
+        lines.push(`  ${formatSummaryEntryText(entry)}`);
       });
     }
     lines.push("");
@@ -517,6 +582,7 @@ function bindEvents() {
     if (event.key === "Enter") addMember();
   });
   els.shiftForm.addEventListener("submit", addShift);
+  els.addWeekOff.addEventListener("click", addWeekOff);
   els.shiftType.addEventListener("change", () => renderFormState());
   els.prevWeek.addEventListener("click", () => moveWeek(-1));
   els.nextWeek.addEventListener("click", () => moveWeek(1));

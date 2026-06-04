@@ -69,7 +69,14 @@
               終了
               <input id="endTime" type="time" value="22:00" />
             </label>
-            <button id="addShift" type="submit">カレンダーに追加</button>
+            <label class="memo-field">
+              メモ（任意）
+              <input id="shiftMemo" type="text" placeholder="例: 18時以降ならOK" maxlength="60" />
+            </label>
+            <div class="form-buttons">
+              <button id="addShift" type="submit">カレンダーに追加</button>
+              <button id="addWeekOff" class="secondary" type="button">1週間休みを提出</button>
+            </div>
           </div>
         </form>
       </section>
@@ -82,6 +89,6 @@
     </main>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script type="module" src="./app.js?v=20260603-2"></script>
+    <script type="module" src="./app.js?v=20260604-1"></script>
   </body>
 </html>
